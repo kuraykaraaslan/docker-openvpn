@@ -1,10 +1,24 @@
-## Ubuntu 22.04
-FROM ubuntu:22.04
+## Minimal Dockerfile for OpenVPN server and Django controller
+FROM alpine:latest
 
 # Install dependencies for OpenVPN
-RUN apt-get update && apt-get install -y openvpn iptables easy-rsa
+RUN apk add --no-cache openvpn easy-rsa
+
+# Copy OpenVPN configuration files
+COPY ./server /etc/openvpn
+
+# Install Dependencies for expressjs
+RUN apk add --no-cache nodejs npm
+
+# Copy expressjs files
+COPY ./controller /root/controller
+
+# Install dependencies for expressjs
+RUN cd /root/controller && npm install
+
+# Start expressjs
+CMD ["sh", "-c", "cd /root/controller && npm run start"]
 
 
-# Keep container running
-ENTRYPOINT ["tail"]
-CMD ["-f","/dev/null"]
+
+
